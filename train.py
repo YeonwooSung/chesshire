@@ -69,7 +69,13 @@ class Net(nn.Module):
 
 
 if __name__ == "__main__":
-	device = "cuda" if torch.cuda.is_available() else "cpu"
+	if torch.cuda.is_available():
+		device_s = "cuda"
+	elif torch.backends.mps.is_available():
+		device_s = "mps"
+	else:
+		device_s = "cpu"
+	device = torch.device(device_s)
 
 	chess_dataset = ChessValueDataset()
 	train_loader = torch.utils.data.DataLoader(chess_dataset, batch_size=256, shuffle=True)
@@ -77,8 +83,8 @@ if __name__ == "__main__":
 	optimizer = optim.Adam(model.parameters())
 	floss = nn.MSELoss()
 
-	if device == "cuda":
-		model.cuda()
+	# load model to the target device
+	model.to(device)
 
 	model.train()
 
